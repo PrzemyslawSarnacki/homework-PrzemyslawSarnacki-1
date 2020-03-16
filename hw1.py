@@ -27,9 +27,8 @@ def poland_cases_by_date(day: int, month: int, year: int = 2020) -> int:
     :param month: Month to get the cases for as an integer indexed from 1
     :return: Number of cases on a given date as an integer
     """
-    
-    # Your code goes here (remove pass)
-    pass
+    date = f"{month}/{day}/{year % 100}"
+    return(confirmed_cases.loc[confirmed_cases["Country/Region"]=="Poland"][date].values[0])
 
 
 def top5_countries_by_date(day: int, month: int, year: int = 2020) -> List[str]:
@@ -47,10 +46,10 @@ def top5_countries_by_date(day: int, month: int, year: int = 2020) -> List[str]:
     :param year: Month to get the countries for as an integer indexed from 1
     :return: A list of strings with the names of the coutires
     """
-
-    # Your code goes here (remove pass)
-    pass
-
+    date = f"{month}/{day}/{year % 100}"
+    top5_countries = confirmed_cases[["Country/Region", date]].sort_values(by=date)
+    top5_countries = top5_countries["Country/Region"].drop_duplicates(keep='last').tail(5)
+    return list((top5_countries)[::-1])
 
 def no_new_cases_count(day: int, month: int, year: int = 2020) -> int:
     """
@@ -67,6 +66,9 @@ def no_new_cases_count(day: int, month: int, year: int = 2020) -> int:
     :param year: Month to get the countries for as an integer indexed from 1
     :return: Number of countries/regions where the count has not changed in a day
     """
-    
-    # Your code goes here (remove pass)
-    pass
+    date = f"{month}/{day}/{year % 100}"
+    confirmed_cases["today"] = confirmed_cases[date].shift(periods=0, fill_value=0)
+    confirmed_cases["yesterday"] = confirmed_cases.shift(periods=1, fill_value=0, axis=1)[date]
+    confirmed_cases["no_new_cases"] = confirmed_cases["today"] != confirmed_cases["yesterday"]
+    no_new_cases = confirmed_cases.no_new_cases.sum()
+    return no_new_cases
